@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberArcade</title>
+    <link rel="icon" href="resources/img/logo_pagina.png" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script>
+        $(document).ready(function () {
+            localStorage.removeItem('game');//Borro el juego del localstorage para que no puedan acceder sin pagar monedas
+
+            /////////////////////////////////////////////////MostraPerfil o login/////////////////////////////////////////////////
+            //pillo la cookie  y la desencripto para su uso
+            const cookieData = document.cookie.split('; ').find(row => row.startsWith('user='));
+
+            if (cookieData) {
+                const decryptedData = decodeURIComponent(cookieData.split('=')[1]);
+                const user = CryptoJS.AES.decrypt(decryptedData, 'your-secret-key').toString(CryptoJS.enc.Utf8);
+                const parsedUser = JSON.parse(user);
+                $("#login-link").text(parsedUser.username);
+                $("#login-link").attr("href", "profile");
+                $("#user-tokens-amount").text(parsedUser.tokens);
+                $("#user-tokens-display").show();
+            } else {
+                // Si no existe la cookie
+                $("#login-link").text("Inicia Sesión");
+                $("#login-link").attr("href", "login");
+                $("#user-tokens-display").hide();
+            }
+
+            /////////////////////////////////////////////////Tema oscuro y claro///////////////////////////////////////////////
+            let currentTheme = localStorage.getItem("currentTheme") || "theme-light";
+            let currentImage = localStorage.getItem("currentImage") || "resources/img/SolLightTheme.png";
+
+            localStorage.setItem("currentTheme", currentTheme);
+            localStorage.setItem("currentImage", currentImage);
+
+            $('body, header, footer, .card, #search-games').addClass(currentTheme);
+            $('.news-card').addClass(currentTheme);
+            $('.modal-content').addClass(currentTheme);
+            $('.imageThemes').attr("src", currentImage);
+
+            // Cambiar a tema oscuro o claro al hacer clic en el botón
+            $('#theme-toggle').click(function () {
+                currentTheme = currentTheme === "theme-light" ? "theme-dark" : "theme-light";
+
+                $('body, header, footer, .card, #search-games').toggleClass('theme-light theme-dark');
+                $('.news-card').attr("class", `news-card ${currentTheme}`);
+                $('.modal-content').attr("class", `modal-content ${currentTheme}`);
+
+                // Cambiar la imagen según el tema
+                currentImage = currentTheme === "theme-light"
+                    ? "resources/img/SolLightTheme.png"
+                    : "resources/img/lunaDarkTheme.png";
+                $('.imageThemes').attr("src", currentImage);
+
+                // Guardar el tema y la imagen actual en localStorage
+                localStorage.setItem("currentTheme", currentTheme);
+                localStorage.setItem("currentImage", currentImage);
+            });
+            
+            ///////////////////////////////////////////////Obtener juegos de la API y mostrar///////////////////////////////////////////////
+            const gameNames = [];// Autocompletar busqueda
+            async function obtenerJuegos() {
+                try {
+                    const response = await fetch('http://localhost:3000/api/games', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        const fetchedGames = await response.json();
+                        renderGames(fetchedGames);
+                        return fetchedGames;
+                    } else {
+                        const error = await response.json();
+                        console.error('Error al obtener juegos:', error.message);
+                        alert(error.message);
+                    }
+                } catch (error) {
+                    console.error('Error en la solicitud:', error);
+                    alert('Hubo un problema al obtener los juegos.');
+                }
+            }
+
+            /////////////////////////////////////////////////Generacion tarjetas de juegos///////////////////////////////////////////////
+            function renderGames(filteredGames) {
+                const $gamesContainer = $(".news");
+                $gamesContainer.empty();
+
+                if (filteredGames.length === 0) {
+                    $(".news").html("<div class='no-games-message'>No se encontraron juegos.</div>");
+                    return;
+                }
+
+                filteredGames.forEach(game => {
+                    const stars = "★".repeat(Math.floor(game.rating)) + "☆".repeat(5 - Math.floor(game.rating));
+                    $gamesContainer.append(`
+                    <div class="news-card ${currentTheme}" tabindex="0">
+                        <a href="#${game.id}" class="ver-mas" data-event="${game.id}">
+                            <img class="img_news" id="game${game.id}" src="${game.img}" alt="Imagen del juego ${game.name}" />
+                        </a>
+                        <h3>${game.name}</h3>
+                        <p>${game.description}</p>
+                        <div class="buttons">
+                            <a class="playButton" data-event="${game.id}">${game.tokens}<img src="resources/img/token.png" alt="ArcadeCoins"/></a>
+                            <a class="btn ver-mas" data-event="${game.id}">Ver más</a>
+                        </div>
+                        <div class="rating" aria-valuenow="${game.rating}" aria-valuemax="5">${stars}</div>
+                    </div>`);
+                });
+            }
+
+            ///////////////////////////////////////////////Mostrar el modal cuando se hace clic en "Ver más"///////////////////////////////////////////////
+            $(".news").on("click", ".ver-mas", function (e) {
+                e.preventDefault();
+
+                const eventId = $(this).data("event"); // Obtener el id del juego del botón
+                const evento = games.find((e) => e.id === eventId); // Buscar los datos del juego 
+
+                if (evento) {
+                    // Rellenar el contenido del modal
+                    $("#modal-title").text(evento.name);
+                    $("#modal-description").text(evento.description);
+                    $("#modal-event-image").attr("src", evento.gif);
+                    $("#modal-event-date").text(evento.date);
+                    // Mostrar el modal
+                    $(".modal-overlay").fadeIn();
+                    $(".modal-content").fadeIn();
+                }
+            });
+
+            $(".close, .modal-overlay").click(function () {
+                $(".modal-overlay").fadeOut();
+                $(".modal-content").fadeOut();
+            });
+
+
+            ///////////////////////////////////////////////Evento de play button///////////////////////////////////////////////
+            $(document).on('click', '.playButton', async function () {
+                const cookieData = document.cookie.split('; ').find(row => row.startsWith('user='));
+
+                if (!cookieData) {//si no estas logado te mando a login
+                    window.location.href = "login";
+                    return;
+                }
+
+                //pillo user y el game
+                const decryptedData = decodeURIComponent(cookieData.split('=')[1]);
+                const user = JSON.parse(CryptoJS.AES.decrypt(decryptedData, 'your-secret-key').toString(CryptoJS.enc.Utf8));
+                const gameId = $(this).closest('.news-card').find('.playButton').data('event');
+                const game = games.find(g => g.id === gameId);
+
+
+                if (user.tokens < (game.tokens * -1)) {
+                    alert("No tienes suficientes tokens para jugar a este juego.");
+                    window.location.href = "addtokens";
+                    return;
+                }
+
+                //actualizo localstorage y api
+                try {
+                    const response = await fetch('http://localhost:3000/api/user/tokens', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user.email, tokens: game.tokens })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        user.tokens = data.tokens; // Actualizar los tokens con la respuesta de la API
+                        const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(user), 'your-secret-key').toString();
+                        document.cookie = `user=${encodeURIComponent(encryptedData)}; path=/; max-age=86400`;//guardo en localStorage usuario actualizado y el juego
+                        localStorage.setItem('game', JSON.stringify(game));
+                        window.location.href = "play";
+                        return;
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error("Error al jugar:", error);
+                    alert("Error de conexión con el servidor.");
+                }
+            });
+
+            ///////////////////////////////////////////////Ordenar y filtrar juegos///////////////////////////////////////////////
+            obtenerJuegos().then(fetchedGames => {//una vez pillo los juegos de la API
+                if (fetchedGames) {
+                    games = fetchedGames;//para la reutilizacion de jquery
+                }
+                //Busqueda con auto completado en la barra de input para buscar juegos
+                for (let i = 0; i < fetchedGames.length; i++) {
+                    gameNames.push(fetchedGames[i].name);
+                }
+
+                $('#search-bar').autocomplete({
+                    source: gameNames,
+                    minLength: 2
+                });
+            });
+
+            function sortGames(criterion) {
+                return [...games].sort((a, b) => {
+                    switch (criterion) {
+                        case "rating-desc":
+                            return b.rating - a.rating;
+                        case "rating-asc":
+                            return a.rating - b.rating;
+                        case "name-asc":
+                            return a.name.localeCompare(b.name);
+                        case "name-desc":
+                            return b.name.localeCompare(a.name);
+                        default:
+                            return 0;
+                    }
+                });
+            }
+
+            $("#search-bar").on("input", function () {
+                const query = $(this).val().toLowerCase();
+                const filteredGames = games.filter(game => game.name.toLowerCase().includes(query));
+                renderGames(filteredGames);
+            });
+
+            $("#sort").on("change", function () {
+                renderGames(sortGames($(this).val()));
+                $("#filter-rating").val("all");
+            });
+
+            $("#filter-rating").on("change", function () {
+                const minRating = parseFloat($(this).val());
+                const filteredGames = isNaN(minRating) ? games : games.filter(game => game.rating === minRating);
+                renderGames(filteredGames);
+            });
+
+        });
+    </script>
+
+</head>
+
+<body>
+    <header>
+        <div class="container_logos">
+            <a href="index" aria-label="Volver al inicio"><img class="logo1" src="resources/img/logo_pagina.png"
+                    alt="Logo CyberArcade" /></a>
+            <a href="index"><img class="logo2" src="resources/img/logo_letras.png" alt="CyberArcade" /></a>
+        </div>
+
+        <a id="theme-toggle" class="theme-modes" aria-label="Cambiar tema" role="button">
+            <img class="imageThemes" src="" alt="Botón cambiar tema" />
+        </a>
+
+        <nav>
+            <ul>
+                <li><a href="index" aria-label="Ir a la página de inicio">Inicio</a></li>
+                <li><a href="games" aria-label="Explorar juegos">Juegos</a></li>
+                <li><a href="events" aria-label="Ver eventos">Eventos</a></li>
+                <li><a href="contact" aria-label="Contactar">Contacto</a></li>
+                <li><a href="login" id="login-link" aria-label="cuenta">login</a></li>
+            </ul>
+        </nav>
+
+        <a href="addtokens" id="user-tokens-display" class="user-tokens" aria-label="Mostrar ArcadeCoins" role="button">
+            ArcadeCoins: <span id="user-tokens-amount">0</span>
+            <img src="resources/img/token.png" alt="ArcadeCoins" />
+        </a>
+
+    </header>
+
+
+    <!-- Modal para los detalles del juego -->
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="modal-event-image" src="" alt="Imagen del juego"
+            style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;" />
+        <h2 id="modal-title">Título del Juego</h2>
+        <p id="modal-description">Descripción del juego.</p>
+        <p><strong>Fecha de lanzamiento: </strong><span id="modal-event-date"></span></p>
+    </div>
+
+    <form action="" method="post" id="search-games" class="search-container ">
+        <input type="text" id="search-bar" placeholder="Buscar juegos..." aria-label="Barra de búsqueda">
+        <label for="sort" aria-label="Ordenar videojuegos">
+            <select id="sort">
+                <option value="rating-desc" selected>Mejor Calificación</option>
+                <option value="rating-asc">Peor Calificación</option>
+                <option value="name-asc">Nombre A-Z</option>
+                <option value="name-desc">Nombre Z-A</option>
+            </select>
+        </label>
+        <label for="filter-rating" aria-label="Filtrar por calificación mínima">
+            <select id="filter-rating">
+                <option value="all" selected>Todos</option>
+                <option value="5">5 estrellas</option>
+                <option value="4">4 estrellas</option>
+                <option value="3">3 estrellas</option>
+                <option value="2">2 estrellas</option>
+                <option value="1">1 estrella</option>
+                <option value="0">0 estrellas</option>
+            </select>
+        </label>
+    </form>
+
+    <h2>Listado de Videojuegos</h2>
+    <div class="news">
+        <!--Aqui los juegos-->
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CyberCode Creations. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+
+</html>

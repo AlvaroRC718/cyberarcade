@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberArcade</title>
+    <link rel="icon" href="resources/img/logo_pagina.png" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script>
+
+        $(document).ready(function () {
+            localStorage.removeItem('game');//Borro el juego del localstorage para que no puedan acceder sin pagar monedas
+            /////////////////////////////////////////////////MostraPerfil o login/////////////////////////////////////////////////
+            //pillo la cookie  y la desencripto para su uso
+            const cookieData = document.cookie.split('; ').find(row => row.startsWith('user='));
+            
+            if (cookieData) {
+                const decryptedData = decodeURIComponent(cookieData.split('=')[1]);
+                const user = CryptoJS.AES.decrypt(decryptedData, 'your-secret-key').toString(CryptoJS.enc.Utf8);
+                // Verificar si la variable 'user' tiene un valor y es un JSON válido
+                const parsedUser = JSON.parse(user);
+                $("#login-link").text(parsedUser.username);
+                $("#login-link").attr("href", "profile");
+                $("#user-tokens-amount").text(parsedUser.tokens);
+                $("#user-tokens-display").show();
+            } else {
+                // Si no existe la cookie
+                $("#login-link").text("Inicia Sesión");
+                $("#login-link").attr("href", "login");
+                $("#user-tokens-display").hide();
+            }
+
+            /////////////////////////////////////////////////Tema oscuro y claro///////////////////////////////////////////////
+            let currentTheme = localStorage.getItem("currentTheme") || "theme-light";
+            let currentImage = localStorage.getItem("currentImage") || "resources/img/SolLightTheme.png";
+
+            localStorage.setItem("currentTheme", currentTheme);
+            localStorage.setItem("currentImage", currentImage);
+
+            $('body, header, footer, .card, #search-games').addClass(currentTheme);
+            $('.news-card').addClass(currentTheme);
+            $('.modal-content').addClass(currentTheme);
+            $('.imageThemes').attr("src", currentImage);
+
+            // Cambiar a tema oscuro o claro al hacer clic en el botón
+            $('#theme-toggle').click(function () {
+                currentTheme = currentTheme === "theme-light" ? "theme-dark" : "theme-light";
+
+                $('body, header, footer, .card, #search-games').toggleClass('theme-light theme-dark');
+                $('.news-card').attr("class", `news-card ${currentTheme}`);
+                $('.modal-content').attr("class", `modal-content ${currentTheme}`);
+
+                // Cambiar la imagen según el tema
+                currentImage = currentTheme === "theme-light"
+                    ? "resources/img/SolLightTheme.png"
+                    : "resources/img/lunaDarkTheme.png";
+                $('.imageThemes').attr("src", currentImage);
+
+                // Guardar el tema y la imagen actual en localStorage
+                localStorage.setItem("currentTheme", currentTheme);
+                localStorage.setItem("currentImage", currentImage);
+            });
+
+            $('#contact-form').on('submit', function (e) {
+                e.preventDefault(); // Evita el envío real del formulario
+                $('#dialog-confirm').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="container_logos">
+            <a href="index" aria-label="Volver al inicio"><img class="logo1" src="resources/img/logo_pagina.png"
+                    alt="Logo CyberArcade" /></a>
+            <a href="index"><img class="logo2" src="resources/img/logo_letras.png" alt="CyberArcade" /></a>
+        </div>
+
+        <a id="theme-toggle" class="theme-modes" aria-label="Cambiar tema" role="button">
+            <img class="imageThemes" src="" alt="Botón cambiar tema" />
+        </a>
+
+        <nav>
+            <ul>
+                <li><a href="index" aria-label="Ir a la página de inicio">Inicio</a></li>
+                <li><a href="games" aria-label="Explorar juegos">Juegos</a></li>
+                <li><a href="events" aria-label="Ver eventos">Eventos</a></li>
+                <li><a href="contact" aria-label="Contactar">Contacto</a></li>
+                <li><a href="login" id="login-link" aria-label="cuenta">login</a></li>
+            </ul>
+        </nav>
+
+        <a href="addtokens" id="user-tokens-display" class="user-tokens" aria-label="Mostrar ArcadeCoins" role="button">
+            ArcadeCoins: <span id="user-tokens-amount">0</span>
+            <img  src="resources/img/token.png" alt="ArcadeCoins"/>
+        </a>
+    </header>
+
+
+        <section class="card">
+            <form id="contact-form" action="#" method="post">
+                <h2>Contacto</h2>
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+
+                <label for="email">Correo</label>
+                <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+
+                <label for="message">Mensaje</label>
+                <textarea id="message" name="message" placeholder="Escribe tu mensaje" rows="5" required></textarea>
+
+                <button type="submit" class="btn">Enviar</button>
+            </form>
+            <div id="dialog-confirm" title="Confirmación" style="display:none;">
+                <p>¡Gracias por contactarnos! Tu mensaje ha sido enviado con éxito.</p>
+            </div>
+        </section>
+
+
+    <footer>
+        <p>&copy; 2025 CyberCode Creations. Todos los derechos reservados.</p>
+    </footer>
+
+
+</body>
+
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberArcade</title>
+    <link rel="icon" href="resources/img/logo_pagina.png" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script>
+        $(document).ready(function () {
+            localStorage.removeItem('game');//Borro el juego del localstorage para que no puedan acceder sin pagar monedas
+
+            /////////////////////////////////////////////////MostraPerfil o login/////////////////////////////////////////////////
+            //pillo la cookie  y la desencripto para su uso
+            const cookieData = document.cookie.split('; ').find(row => row.startsWith('user='));
+            let email = "";
+            if (cookieData) {
+                const decryptedData = decodeURIComponent(cookieData.split('=')[1]);
+                const user = CryptoJS.AES.decrypt(decryptedData, 'your-secret-key').toString(CryptoJS.enc.Utf8);
+                // Verificar si la variable 'user' tiene un valor y es un JSON válido
+                const parsedUser = JSON.parse(user);
+                $("#login-link").text(parsedUser.username);
+                $("#login-link").attr("href", "profile");
+                $("#user-tokens-amount").text(parsedUser.tokens);
+                $("#user-tokens-display").show();
+                email = parsedUser.email;
+                //Datos del perfil
+                $("#username").text(parsedUser.username);
+                $("#email").text(parsedUser.email);
+                $("#tokens").text(parsedUser.tokens);
+            } else {
+                // Si no existe la cookie
+                window.location.href = "login"; //pa tu casa
+            }
+
+            /////////////////////////////////////////////////Tema oscuro y claro///////////////////////////////////////////////
+            let currentTheme = localStorage.getItem("currentTheme") || "theme-light";
+            let currentImage = localStorage.getItem("currentImage") || "resources/img/SolLightTheme.png";
+
+            localStorage.setItem("currentTheme", currentTheme);
+            localStorage.setItem("currentImage", currentImage);
+
+            $('body, header, footer, .card, #search-games').addClass(currentTheme);
+            $('.news-card').addClass(currentTheme);
+            $('.modal-content').addClass(currentTheme);
+            $('.imageThemes').attr("src", currentImage);
+
+            // Cambiar a tema oscuro o claro al hacer clic en el botón
+            $('#theme-toggle').click(function () {
+                currentTheme = currentTheme === "theme-light" ? "theme-dark" : "theme-light";
+
+                $('body, header, footer, .card, #search-games').toggleClass('theme-light theme-dark');
+                $('.news-card').attr("class", `news-card ${currentTheme}`);
+                $('.modal-content').attr("class", `modal-content ${currentTheme}`);
+
+                // Cambiar la imagen según el tema
+                currentImage = currentTheme === "theme-light"
+                    ? "resources/img/SolLightTheme.png"
+                    : "resources/img/lunaDarkTheme.png";
+                $('.imageThemes').attr("src", currentImage);
+
+                // Guardar el tema y la imagen actual en localStorage
+                localStorage.setItem("currentTheme", currentTheme);
+                localStorage.setItem("currentImage", currentImage);
+            });
+
+            ////////////////////////////////////////////////Cerrar sesion///////////////////////////////////////////////
+            $("#logout").click(function () {
+                document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "login";
+            });
+            ///////////////////////////////////////////////Borrar Cuenta///////////////////////////////////////////////
+            $("#delete-account").click(function () {
+                $("#passwordModal").show();
+            });
+
+            $("#cancelDelete").click(function () {
+                $("#passwordModal").hide();
+            });
+
+            $("#confirmDelete").click(async function () {
+                const password = $("#passwordInput").val();
+                if (!password) {
+                    alert("Debes ingresar tu contraseña.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch("http://localhost:3000/api/user/delete", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Error del servidor:", errorText);
+                        alert("Error al eliminar la cuenta.");
+                        return;
+                    }
+
+                    alert("Cuenta eliminada exitosamente.");
+                    document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.location.href = "/register";
+                } catch (error) {
+                    console.error("Error en la solicitud:", error);
+                    alert("Hubo un problema al intentar eliminar la cuenta.");
+                }
+
+                $("#passwordModal").hide();
+            });
+
+
+        });
+    </script>
+
+
+</head>
+
+<body>
+    <header>
+        <div class="container_logos">
+            <a href="index" aria-label="Volver al inicio"><img class="logo1" src="resources/img/logo_pagina.png"
+                    alt="Logo CyberArcade" /></a>
+            <a href="index"><img class="logo2" src="resources/img/logo_letras.png" alt="CyberArcade" /></a>
+        </div>
+
+        <a id="theme-toggle" class="theme-modes" aria-label="Cambiar tema" role="button">
+            <img class="imageThemes" src="" alt="Botón cambiar tema" />
+        </a>
+
+        <nav>
+            <ul>
+                <li><a href="index" aria-label="Ir a la página de inicio">Inicio</a></li>
+                <li><a href="games" aria-label="Explorar juegos">Juegos</a></li>
+                <li><a href="events" aria-label="Ver eventos">Eventos</a></li>
+                <li><a href="contact" aria-label="Contactar">Contacto</a></li>
+                <li><a href="login" id="login-link" aria-label="cuenta">login</a></li>
+            </ul>
+        </nav>
+
+        <a href="addtokens" id="user-tokens-display" class="user-tokens" aria-label="Mostrar ArcadeCoins" role="button">
+            ArcadeCoins: <span id="user-tokens-amount">0</span>
+            <img src="resources/img/token.png" alt="ArcadeCoins" />
+        </a>
+    </header>
+
+    <section class="card">
+        <div id="contact-form">
+            <h1>Perfil de Usuario</h1>
+            <p><strong>Nombre de Usuario:</strong> <span id="username"></span></p>
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            <p><strong>ArcadeCoins:</strong> <span id="tokens"></span><a href="addtokens"><img
+                        src="resources/img/token.png" alt="ArcadeCoins" /></a></p>
+            <button href="logout" id="logout" class="btn">Cerrar sesión</button>
+            <button href="logout" id="delete-account" class="btn">Borrar cuenta</button>
+        </div>
+    </section>
+
+    <!-- Modal de confirmación -->
+    <div id="passwordModal">
+        <div>
+            <p>Estás a punto de eliminar tu cuenta. ¿Seguro que quieres continuar?</p>
+            <input type="password" id="passwordInput" placeholder="Introduce tu contraseña">
+            <button id="confirmDelete">Confirmar eliminación</button>
+            <button id="cancelDelete">Cancelar</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CyberCode Creations. Todos los derechos reservados.</p>
+    </footer>
+
+
+</body>
+
+</html>

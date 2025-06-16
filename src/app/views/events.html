@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberArcade</title>
+    <link rel="icon" href="resources/img/logo_pagina.png" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+
+        $(document).ready(function () {
+            localStorage.removeItem('game');//Borro el juego del localstorage para que no puedan acceder sin pagar monedas
+            /////////////////////////////////////////////////MostraPerfil o login/////////////////////////////////////////////////
+            //pillo la cookie  y la desencripto para su uso
+            const cookieData = document.cookie.split('; ').find(row => row.startsWith('user='));
+            
+            if (cookieData) {
+                const decryptedData = decodeURIComponent(cookieData.split('=')[1]);
+                const user = CryptoJS.AES.decrypt(decryptedData, 'your-secret-key').toString(CryptoJS.enc.Utf8);
+                // Verificar si la variable 'user' tiene un valor y es un JSON válido
+                const parsedUser = JSON.parse(user);
+                $("#login-link").text(parsedUser.username);
+                $("#login-link").attr("href", "profile");
+                $("#user-tokens-amount").text(parsedUser.tokens);
+                $("#user-tokens-display").show();
+            } else {
+                // Si no existe la cookie
+                $("#login-link").text("Inicia Sesión");
+                $("#login-link").attr("href", "login");
+                $("#user-tokens-display").hide();
+            }
+
+            /////////////////////////////////////////////////Tema oscuro y claro///////////////////////////////////////////////
+            let currentTheme = localStorage.getItem("currentTheme") || "theme-light";
+            let currentImage = localStorage.getItem("currentImage") || "resources/img/SolLightTheme.png";
+
+            localStorage.setItem("currentTheme", currentTheme);
+            localStorage.setItem("currentImage", currentImage);
+
+            $('body, header, footer, .card, #search-games').addClass(currentTheme);
+            $('.news-card').addClass(currentTheme);
+            $('.modal-content').addClass(currentTheme);
+            $('.imageThemes').attr("src", currentImage);
+
+            // Cambiar a tema oscuro o claro al hacer clic en el botón
+            $('#theme-toggle').click(function () {
+                currentTheme = currentTheme === "theme-light" ? "theme-dark" : "theme-light";
+
+                $('body, header, footer, .card, #search-games').toggleClass('theme-light theme-dark');
+                $('.news-card').attr("class", `news-card ${currentTheme}`);
+                $('.modal-content').attr("class", `modal-content ${currentTheme}`);
+
+                // Cambiar la imagen según el tema
+                currentImage = currentTheme === "theme-light"
+                    ? "resources/img/SolLightTheme.png"
+                    : "resources/img/lunaDarkTheme.png";
+                $('.imageThemes').attr("src", currentImage);
+
+                // Guardar el tema y la imagen actual en localStorage
+                localStorage.setItem("currentTheme", currentTheme);
+                localStorage.setItem("currentImage", currentImage);
+            });
+
+            const eventos = [
+                {
+                    id: "pokemon",
+                    date: "15/02/2025",
+                    title: "Torneo Pokémon Server",
+                    description: "¡Únete al torneo más emocionante de Pokémon Server!",
+                    image: "resources/img/pokemon_server.png"
+                },
+                {
+                    id: "mistbringer_dungeon",
+                    date: "27/01/2025",
+                    title: "Lanzamiento de Mistbringer's Dungeon",
+                    description: "Disfruta del gran lanzamiento del juego Mistbringer's Dungeon.",
+                    image: "resources/img/mistbringer_dungeon.png"
+                },
+                {
+                    id: "doom",
+                    date: "05/02/2025",
+                    title: "Speedrun de Doom",
+                    description: "Participa en el speedrun de Doom en tiempo récord.",
+                    image: "resources/img/doom.avif"
+                }
+            ];
+
+            // Función para marcar días con eventos
+            function marcarDias(date) {
+                const formattedDate = $.datepicker.formatDate("dd/mm/yy", date); // Formato "dd/mm/yyyy"
+                const evento = eventos.find(e => e.date === formattedDate); // Buscar evento para la fecha actual
+                if (evento) {
+                    return [true, "event-day", evento.title]; // Clase para sombrear el día con evento
+                }
+                return [true, "", ""]; // Día normal
+            }
+
+            // Inicializar el datepicker con beforeShowDay
+            $("#datepicker").datepicker({
+                dateFormat: "dd/mm/yy",
+                beforeShowDay: function (date) {
+                    const formattedDate = $.datepicker.formatDate("dd/mm/yy", date);
+                    const evento = eventos.find(e => e.date === formattedDate);
+                    if (evento) {
+                        return [true, "event-day", evento.title];
+                    }
+                    return [true, "", ""];
+                },
+                onSelect: function (dateText) {
+                    const evento = eventos.find(e => e.date === dateText);
+                    if (evento) {
+                        $("#modal-title").text(evento.title);
+                        $("#modal-description").text(evento.description);
+                        $("#modal-event-date").text(evento.date);
+                        $("#modal-event-image").attr("src", evento.image);
+                        $(".modal-overlay").fadeIn();
+                        $(".modal-content").fadeIn();
+                    }
+                }
+            });
+
+            // Cerrar el modal al hacer clic en el botón de cerrar o en el overlay
+            $(".close, .modal-overlay").click(function () {
+                $(".modal-overlay").fadeOut();
+                $(".modal-content").fadeOut();
+            });
+
+            // Abrir el modal con detalles del evento al hacer clic
+            $(document).on("click", ".event-day a", function (e) {
+                e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
+                const tdElement = $(this).closest("td"); // Obtener el <td> que contiene el evento
+                const day = $(this).text().padStart(2, '0'); // Día seleccionado
+                const month = (parseInt(tdElement.attr("data-month")) + 1).toString().padStart(2, '0'); // Mes
+                const year = tdElement.attr("data-year"); // Año
+                const selectedDate = `${day}/${month}/${year}`;
+
+                // Buscar evento
+                const evento = eventos.find(e => e.date === selectedDate);
+
+                if (evento) {
+                    $("#modal-title").text(evento.title);
+                    $("#modal-description").text(evento.description);
+                    $("#modal-event-date").text(evento.date);
+
+                    // Mostrar modal
+                    $("#event-modal").fadeIn();
+                }
+            });
+
+            // Cerrar el modal
+            $(".close").click(function () {
+                $("#event-modal").fadeOut();
+            });
+
+            // Cerrar el modal si se hace clic fuera del contenido
+            $(window).click(function (event) {
+                if ($(event.target).is("#event-modal")) {
+                    $("#event-modal").fadeOut();
+                }
+            });
+
+            // Mostrar el modal cuando se hace clic en "Ver más"
+            $(".ver-mas").click(function (e) {
+                e.preventDefault(); // Evitar el comportamiento predeterminado del enlace
+
+                const eventId = $(this).data("event"); // Obtener el id del evento del botón
+                const evento = eventos.find((e) => e.id === eventId); // Buscar los datos del evento
+
+                if (evento) {
+                    // Rellenar el contenido del modal
+                    $("#modal-title").text(evento.title);
+                    $("#modal-description").text(evento.description);
+                    $("#modal-event-date").text(evento.date);
+                    $("#modal-event-image").attr("src", evento.image);
+
+                    // Mostrar el modal
+                    $(".modal-overlay").fadeIn();
+                    $(".modal-content").fadeIn();
+                }
+            });
+
+            // Cerrar el modal al hacer clic en el botón de cerrar o en el overlay
+            $(".close, .modal-overlay").click(function () {
+                $(".modal-overlay").fadeOut();
+                $(".modal-content").fadeOut();
+            });
+
+        });
+
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="container_logos">
+            <a href="index" aria-label="Volver al inicio"><img class="logo1" src="resources/img/logo_pagina.png"
+                    alt="Logo CyberArcade" /></a>
+            <a href="index"><img class="logo2" src="resources/img/logo_letras.png" alt="CyberArcade" /></a>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="index" aria-label="Ir a la página de inicio">Inicio</a></li>
+                <li><a href="games" aria-label="Explorar juegos">Juegos</a></li>
+                <li><a href="events" aria-label="Ver eventos">Eventos</a></li>
+                <li><a href="contact" aria-label="Contactar">Contacto</a></li>
+                <li><a href="login" id="login-link" aria-label="cuenta">login</a></li>
+            </ul>
+        </nav>
+
+        <a href="addtokens" id="user-tokens-display" class="user-tokens" aria-label="Mostrar ArcadeCoins" role="button">
+            ArcadeCoins: <span id="user-tokens-amount">0</span>
+            <img  src="resources/img/token.png" alt="ArcadeCoins"/>
+        </a>
+    </header>
+
+    <a id="theme-toggle" class="theme-modes" aria-label="Cambiar tema" role="button">
+        <img class="imageThemes" src="" alt="Botón cambiar tema" />
+    </a>
+
+
+    <section id="home" class="hero">
+        <div class="hero-text">
+            <h1>Calendario de eventos</h1>
+            <p>No te pierdas los últimos lanzamientos y noticias de última hora.</p>
+        </div>
+    </section>
+
+    <form action="#">
+        <label class="p-datepicker" for="datepicker">Fecha:</label>
+        <input type="text" name="datepicker" id="datepicker" class="">
+    </form>
+    
+    <!-- Modal para los detalles del evento -->
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="modal-event-image" src="" alt="Imagen del evento"
+            style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;" />
+        <h2 id="modal-title">Título del Evento</h2>
+        <p id="modal-description">Descripción del evento.</p>
+        <p><strong>Fecha:</strong> <span id="modal-event-date"></span></p>
+    </div>
+
+    <section id="events" class="events">
+        <h2>Próximos eventos</h2>
+        <div class="news">
+            <div class="news-card">
+                <a href="#pokemon" class="ver-mas" data-event="pokemon"><img id="imagepokemon" class="img_news"
+                        src="resources/img/pokemon_server.png" alt="Imagen del juego Pokémon Server" /></a>
+                <h3>🎮 Torneo Pokémon Server</h3>
+                <p>Un emocionante mundo de batallas Pokémon.</p>
+                <a href="#pokemon" class="btn ver-mas" data-event="pokemon">Ver más</a>
+            </div>
+            <div class="news-card">
+                <a href="#mistbringer_dungeon" class="ver-mas" data-event="mistbringer_dungeon"><img
+                        id="imagemistbringer_dungeon" class="img_news" src="resources/img/mistbringer_dungeon.png"
+                        alt="Mistbringer Dungeon" /></a>
+                <h3>🕹️ Mistbringer's Dungeon - Lanzamiento</h3>
+                <p>Encuentra la mazmorra del Mistbringer y acaba con la niebla...</p>
+                <a href="#mistbringer_dungeon" class="btn ver-mas" data-event="mistbringer_dungeon">Ver más</a>
+            </div>
+            <div class="news-card">
+                <a href="#doom" class="ver-mas" data-event="doom"> <img id="imagedoom" class="img_news"
+                        src="resources/img/doom.avif" alt="Doom" /></a>
+                <h3>🔥 Speedrun de Doom</h3>
+                <p>Corre Doom en cualquier plataforma, desde navegadores hasta calculadoras.</p>
+                <a href="#doom" class="btn ver-mas" data-event="doom">Ver más</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 CyberCode Creations. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+
+</html>

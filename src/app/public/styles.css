@@ -1,0 +1,914 @@
+/*////////////////////////////////////////////////////////////////////////////Index////////////////////////////////////////////////////////////////////////////*/
+body {
+    height: 100%;
+    font-family: 'Orbitron', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+main {
+    height: 70vh;
+}
+
+body.theme-light {
+    background-color: #f0f0f0;
+    color: #005000;
+}
+
+body.theme-dark {
+    background-color: #1a1a1a;
+    color: #e6f7e6;
+}
+
+header {
+    height: 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1%;
+}
+
+header.theme-light {
+    background: linear-gradient(45deg, #e6f7e6, #02832D);
+}
+
+header.theme-dark {
+    background: linear-gradient(45deg, #005000, #02832D);
+}
+
+.container_logos {
+    display: flex;
+    align-items: center;
+}
+
+.logo1 {
+    width: 100px;
+    height: auto;
+}
+
+.logo2 {
+    width: 300px;
+    height: auto;
+}
+
+nav ul {
+    margin-top: 10%;
+    list-style: none;
+    display: flex;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    padding: 10px 20px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #F2F2F2;
+}
+
+.user-tokens {
+    display: flex;
+    position: fixed;
+    z-index: 999;
+    align-items: center;
+    padding: 0.5%;
+    gap: 2%;
+    bottom: 0%;
+    left: 87%;
+    text-decoration: none;
+    color: #000;
+    background-color: #00cc66;
+    border-radius: 15px;
+    box-sizing: border-box;
+    transition: color 0.3s;
+}
+
+.user-tokens:hover {
+    color: #F2F2F2;
+}
+
+.user-tokens img {
+    width: 20%;
+    height: 20%;
+}
+
+/* botón de cambiar tema */
+.theme-modes {
+    cursor: pointer;
+}
+
+#theme-toggle .imageThemes {
+    width: 40%;
+    height: 40%;
+}
+
+#theme-toggle {
+    display: inline-block;
+    position: absolute;
+    top: 2%;
+    left: 95%;
+}
+
+#theme-toggle img {
+    transition: transform 0.3s ease;
+}
+
+.hero {
+    padding-left: 3%;
+}
+
+.hero-text h1 {
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 300%;
+    margin-bottom: 10px;
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+}
+
+.btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    background-color: #00cc66;
+    color: black;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+    border-style: none;
+    box-sizing: border-box;
+}
+
+.btn:hover {
+    background-color: #02832D;
+    color: white;
+}
+
+.btn:disabled {
+    background-color: #b9ffd0;
+    color: #000;
+    cursor: auto;
+}
+
+h2 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.news {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4%;
+    padding: 2%
+}
+
+.news-card {
+    align-items: center;
+    flex-basis: 30%;
+    padding: 2%;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+    margin-bottom: 3%;
+}
+
+.news-card.theme-light {
+    background: #e6ffe6;
+    color: #000;
+}
+
+.news-card.theme-dark {
+    background: #002b00;
+    color: white;
+}
+
+.news-card img {
+    width: 80%;
+    height: 180px;
+    border-radius: 10px;
+    filter: brightness(90%);
+    transition: opacity 0.3s ease;
+}
+
+#game00:hover {
+    content: url('resources/img/pokemon_server.gif');
+}
+
+#game01:hover {
+    content: url('resources/img/mistbringer_dungeon.gif');
+}
+
+#game1:hover {
+    content: url('http://localhost:3000/api/romsdata/img/pokemon_esmeralda.gif');
+}
+
+#game2:hover {
+    content: url('http://localhost:3000/api/romsdata/img/streets_of_rage.gif');
+}
+
+#game3:hover {
+    content: url('http://localhost:3000/api/romsdata/img/metal_slug_x.gif');
+}
+
+#game4:hover {
+    content: url('http://localhost:3000/api/romsdata/img/tekken_3.gif');
+}
+
+#game5:hover {
+    content: url('http://localhost:3000/api/romsdata/img/super_mario_64.gif');
+}
+
+#game6:hover {
+    content: url('http://localhost:3000/api/romsdata/img/donkey_kong_country.gif');
+}
+
+#game7:hover {
+    content: url('http://localhost:3000/api/romsdata/img/final_fantasy_vi_advance.gif');
+}
+
+#game8:hover {
+    content: url('http://localhost:3000/api/romsdata/img/punch_out.gif');
+}
+
+#game9:hover {
+    content: url('http://localhost:3000/api/romsdata/img/doom.gif');
+}
+
+.news-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(0, 204, 102, 0.6);
+}
+
+/* Diálogo de descarga */
+.ui-dialog {
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(45deg, #e6ffe6, #ccffe6);
+    border: 2px solid #00cc66;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 204, 102, 0.8);
+    color: #1a1a1a;
+    width: 700px;
+}
+
+.ui-dialog-titlebar {
+    background: linear-gradient(45deg, #004d00, #00cc66);
+    color: #ffffff;
+    font-size: 1.2rem;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.ui-dialog-titlebar-close {
+    color: #ffffff;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.ui-dialog-titlebar-close:hover {
+    background-color: #005c33;
+    border-radius: 50%;
+}
+
+.ui-dialog-content {
+    font-size: 1rem;
+    padding: 20px;
+    color: #1a1a1a;
+}
+
+.ui-dialog-buttonpane {
+    background: #f0f0f0;
+    border-top: 2px solid #00cc66;
+    border-radius: 0 0 10px 10px;
+}
+
+.ui-button {
+    background-color: #00cc66;
+    color: #ffffff;
+    border: 1px solid #004d00;
+    border-radius: 5px;
+    font-size: 1rem;
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.ui-button:hover {
+    background-color: #00994d;
+    transform: scale(1.01);
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 4%;
+}
+
+.buttons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playButton {
+    background-color: #00cc66;
+    color: #000000;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    gap: 2%;
+    width: 20%;
+}
+
+.playButton img {
+    width: 30%;
+    height: 100%;
+}
+
+.playButton:hover {
+    background-color: #02832D;
+    color: white;
+}
+
+footer {
+    text-align: center;
+    color: #000;
+    padding: 20px;
+    margin-top: 7.5%;
+}
+
+footer.theme-light {
+    background: linear-gradient(45deg, #e6f7e6, #b2e8b2);
+}
+
+footer.theme-dark {
+    background: linear-gradient(45deg, #002b00, #005000);
+    color: white;
+}
+
+/*////////////////////////////////////////////////////////////////////////////games.html////////////////////////////////////////////////////////////////////////////*/
+.search-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1%;
+    gap: 1.5%;
+    padding: 10px;
+}
+
+.search-container.theme-light {
+    background: linear-gradient(45deg, #e6ffe6, #ccffe6);
+    box-shadow: 0 0 15px rgba(0, 204, 102, 0.6);
+}
+
+.search-container.theme-dark {
+    background: linear-gradient(45deg, #005000, #02832D);
+    box-shadow: 0 0 15px rgba(2, 255, 48, 0.6);
+}
+
+/* Barra de búsqueda */
+input {
+    height: 40px;
+    width: 250px;
+    padding: 0 10px;
+    border-radius: 20px;
+    border: 2px solid #00cc66;
+    font-size: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #e6ffe6;
+    color: #333;
+    transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+input:focus {
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #00cc66;
+    outline: none;
+}
+
+#sort,
+#filter-rating {
+    height: 40px;
+    border-radius: 20px;
+    border: 2px solid #00cc66;
+    padding: 0 10px;
+    background-color: #e6ffe6;
+    font-size: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    color: #333;
+    margin-left: 10px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+#sort:hover,
+#filter-rating:hover {
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #00cc66;
+    cursor: pointer;
+}
+
+#sort:focus,
+#filter-rating:focus {
+    outline: none;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #00cc66;
+}
+
+/* Contenedor del mensaje de "No se encontraron juegos" */
+.no-games-message {
+    height: 37vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 120%;
+    color: #666;
+    text-align: center;
+}
+
+.rating {
+    font-size: 2rem;
+    margin-top: 0.5rem;
+    color: rgb(33, 246, 5);
+}
+
+/*////////////////////////////////////////////////////////////////////////////contact.html////////////////////////////////////////////////////////////////////////////*/
+.card {
+    padding: 1%;
+    text-align: center;
+    border-radius: 20px;
+    margin: 3% auto;
+    width: 35%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.card.theme-light {
+    background: linear-gradient(45deg, #e6f7e6, #b2e8b2);
+}
+
+.card.theme-dark {
+    background: linear-gradient(45deg, #005000, #009933);
+}
+
+
+#contact-form {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#contact-form textarea {
+    font-family: 'Orbitron', sans-serif;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #00cc66;
+    background-color: #e6ffe6;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+
+#contact-form textarea:focus {
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #00cc66;
+    outline: none;
+}
+
+#contact-form input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+#contact-form label {
+    font-size: 1rem;
+    text-align: left;
+}
+
+#contact-form button {
+    width: 100%;
+}
+
+#contact-form a {
+    text-decoration: none;
+    color: #000;
+    transition: color 0.3s;
+}
+
+#contact-form a:hover {
+    color: #00cc66;
+}
+
+/*////////////////////////////////////////////////////////////////////////////events.html////////////////////////////////////////////////////////////////////////////*/
+.p-datepicker {
+    margin-left: 3%;
+}
+
+/* General - Fondo y bordes del Datepicker */
+.ui-datepicker {
+    background-color: #2e2e2e;
+    border: 1px solid #99e6b3;
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Cabecera del Datepicker (Mes y botones de navegación) */
+.ui-datepicker-header {
+    background-color: #99e6b3;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px;
+}
+
+/* Botones de navegación (anterior y siguiente) */
+.ui-datepicker-prev,
+.ui-datepicker-next {
+    cursor: pointer;
+    color: #2e2e2e;
+}
+
+.ui-datepicker-prev:hover,
+.ui-datepicker-next:hover {
+    background-color: #ffffff;
+    color: #00cc66;
+    border-radius: 50%;
+}
+
+/* Días de la semana (cabecera) */
+.ui-datepicker-calendar th {
+    background-color: #1e1e1e;
+    color: #00cc66;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px;
+}
+
+/* Días del calendario */
+.ui-datepicker-calendar td a {
+    background-color: #2e2e2e;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 5px;
+    border-radius: 2%;
+    font-weight: bold;
+}
+
+.ui-datepicker-calendar td a:hover {
+    background-color: #00ffcc;
+    color: #2e2e2e;
+}
+
+/* Día actual */
+.ui-datepicker-calendar .ui-datepicker-today a {
+    background-color: #00ffcc;
+    color: #2e2e2e;
+    border: 2px solid #ffffff;
+}
+
+/* Días con eventos */
+.ui-datepicker-calendar .event-day a {
+    background-color: #ff9900;
+    color: #ffffff;
+    font-weight: bold;
+    border: 2px solid #00ffcc;
+}
+
+.ui-datepicker-calendar .event-day a:hover {
+    background-color: #ffcc00;
+    color: #2e2e2e;
+}
+
+/* Meses y años en el selector desplegable */
+.ui-datepicker select.ui-datepicker-month,
+.ui-datepicker select.ui-datepicker-year {
+    background-color: #2e2e2e;
+    color: #ffffff;
+    border: 1px solid #00ffcc;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+
+/* Modal datepicker */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    transform: translate(-50%, -50%);
+    background: white;
+    z-index: 1000;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.modal-content.theme-light {
+    background: #e6ffe6;
+    color: #000;
+}
+
+.modal-content.theme-dark {
+    background: #13913d;
+    color: white;
+}
+
+.modal-content.theme-dark h2 {
+    color: white;
+}
+
+.modal-content:hover {
+    box-shadow: 0 0 15px rgba(0, 204, 102, 0.6);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.news-card {
+    width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Días de eventos */
+.ui-datepicker-calendar .event-day a {
+    background-color: #00cc66 !important;
+    color: #000 !important;
+    border-radius: 20% !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+/*////////////////////////////////////////////////////////////////////////////profile.html////////////////////////////////////////////////////////////////////////////*/
+#contact-form img {
+    width: 8%;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+#passwordModal {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    text-align: center;
+}
+
+#passwordModal > div {
+    background-color: #2c2c2c; 
+    margin-top: 5%; 
+    padding: 2%;
+    border-radius: 8px;
+    width: 20%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#passwordModal p {
+    color: #ff4c4c; 
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#passwordInput {
+    padding: 10px;
+    margin-top: 10px;
+    border: 2px solid #ff4c4c; 
+    border-radius: 5px;
+    width: 100%;
+    font-size: 16px;
+    background-color: #333; 
+    color: white; 
+}
+
+#passwordInput:hover {
+    box-shadow: 0 0 10px #e60000;
+}
+
+#passwordInput:focus {
+    box-shadow: 0 0 10px #e60000;
+}
+
+#confirmDelete, #cancelDelete {
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+#confirmDelete {
+    background-color: #ff4c4c; 
+    color: white;
+}
+
+#confirmDelete:hover {
+    background-color: #e60000;
+}
+
+#cancelDelete {
+    background-color: #444; 
+    color: white;
+}
+
+#cancelDelete:hover {
+    background-color: #666; 
+}
+
+#confirmDelete:hover, #cancelDelete:hover {
+    transform: scale(1.05); 
+    transition: 0.2s ease-in-out;
+}
+
+/*////////////////////////////////////////////////////////////////////////////addtokens.html////////////////////////////////////////////////////////////////////////////*/
+#fran{
+    width: 100%;
+}
+
+#reward-video{
+    width: 90%;
+}
+
+.video-controls {
+    display: flex;
+    gap: 50px;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.videobtn {
+    width: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#reward-video::-webkit-media-controls {
+    display: none !important;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+/*///////////////////////////////////////////////////////////////////RESPONSIVE///////////////////////////////////////////////////////////////////*/
+/*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+
+@media (max-width: 1000px) {
+    header {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 1%;
+    }
+
+    .logo1 {
+        width: 20vw;
+        height: 13vh;
+    }
+
+    .logo2 {
+        width: 70vw;
+        height: 10vh;
+    }
+
+    nav {
+        width: 100%;
+    }
+
+    nav ul {
+        display: flex;
+        justify-content: center;
+        gap: 10%;
+        padding: 0%;
+    }
+
+    nav a {
+        padding: 0%;
+    }
+
+    #theme-toggle .imageThemes {
+        width: 100%;
+        height: 100%;
+    }
+
+    .hero-text h1 {
+        font-size: 170%;
+    }
+
+    .hero-text p {
+        font-size: 100%;
+    }
+
+    .news-card {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 90%;
+        margin-bottom: 7%;
+    }
+
+    .news-card img {
+        width: 100%;
+        height: 230px;
+    }
+
+    .news-card .ver-mas {
+        margin-top: 4%;
+    }
+
+    .modal-content {
+        width: 80%;
+    }
+
+    .search-container {
+        margin-top: 2%;
+    }
+
+    .search-container select {
+        margin-top: 5%;
+    }
+
+    #contact {
+        width: 80%;
+    }
+}
